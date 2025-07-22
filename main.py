@@ -23,10 +23,16 @@ def buscar_participantes():
             items = json.loads(datatarget[0].text)["payload"]["tree"]["items"]
             for item in items:
                 name = item["name"]
-                data_url = f"{RAW_BASE_URL}/{name}/partial-results.json"
-                data = requests.get(data_url)
-                if data.status_code == 200 and len(data.content) > 0:
-                    participantes.append(json.loads(data.content))
+                url_results = f"{RAW_BASE_URL}/{name}/partial-results.json"
+                url_info = f"{RAW_BASE_URL}/{name}/info.json"
+                response_results = requests.get(url_results)
+                response_info = requests.get(url_info)
+                if (response_results.status_code == 200 and len(response_results.content) > 0) and (response_info.status_code == 200 and len(response_info.content) > 0):
+                    data_results = json.loads(response_results.content)
+                    data_info = json.loads(response_info.content)
+                    data_info["data"] = data_results
+                    #print(data_info)
+                    participantes.append(data_info)
     return participantes
 
 def atualizar_cache():
@@ -34,7 +40,7 @@ def atualizar_cache():
     try:
         print("Atualizando cache do ranking...")
         participantes = buscar_participantes()
-        ranking = sorted(participantes, key=lambda p: p['total_liquido'], reverse=True)
+        ranking = sorted(participantes, key=lambda p: p["data"]['total_liquido'], reverse=True)
         with cache_lock:
             ranking_cache = ranking
         print(f"Cache atualizado com {len(ranking_cache)} participantes.")
@@ -63,5 +69,4 @@ def agendador():
 threading.Thread(target=agendador, daemon=True).start()
 
 if __name__ == '__main__':
-    atualizar_cache()
     app.run(host='0.0.0.0', port=5000)
