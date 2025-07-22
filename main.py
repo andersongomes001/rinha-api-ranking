@@ -4,8 +4,10 @@ from bs4 import BeautifulSoup
 import json
 import threading
 import time
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 GITHUB_URL = "https://github.com/zanfranceschi/rinha-de-backend-2025/tree/main/participantes"
 RAW_BASE_URL = "https://raw.githubusercontent.com/zanfranceschi/rinha-de-backend-2025/main/participantes"
