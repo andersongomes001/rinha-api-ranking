@@ -26,6 +26,8 @@ mapa_linguagens = {
     "typescript": "TypeScript",
     "ts": "TypeScript",
     "java": "Java",
+    "ava": "Java",
+    "Java 17": "Java",
     "go": "Go",
     "golang": "Go",
     "rust": "Rust",
@@ -34,11 +36,11 @@ mapa_linguagens = {
     "cpp": "C++",
     "c#": "C#",
     "c sharp": "C#",
+    "csharp": "C#",
     "php": "PHP",
     "python": "Python",
     "swift": "Swift",
     "lua": "Lua",
-    "ava": "Java",
     "spring": "Spring",
     "springboot": "Spring",
     "nest": "NestJS",
@@ -79,7 +81,7 @@ def buscar_participantes():
                         data_results = json.loads(re.sub(r',(\s*[}\]])', r'\1', response_results.content.decode()))
                         data_info = json.loads(re.sub(r',(\s*[}\]])', r'\1', response_info.content.decode()))
                         data_info["data"] = data_results
-                        data_info["langs"] = [(mapa_linguagens.get(lang) or lang) for lang in data_info["langs"]]
+                        data_info["langs"] = list(set([(mapa_linguagens.get(lang) or lang) for lang in data_info["langs"]]))
                         participantes.append(data_info)
                 except Exception as e:
                     print(f"Erro pegar dados : {e}")
