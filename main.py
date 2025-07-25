@@ -60,6 +60,13 @@ mapa_linguagens = {
     "redis": "Redis"
 }
 
+def social_priority(url):
+    if "linkedin" in url:
+        return 0
+    elif "github" in url or "/git" in url:
+        return 1
+    else:
+        return 2
 
 def buscar_participantes():
     response = requests.get(GITHUB_URL)
@@ -84,7 +91,7 @@ def buscar_participantes():
                         data_info["langs"] = list(set([(mapa_linguagens.get(lang) or lang) for lang in data_info["langs"]]))
 
                         if "social" in data_info and isinstance(data_info["social"], list):
-                            data_info["social"].sort()
+                            data_info["social"].sort(key=social_priority)
 
                         participantes.append(data_info)
                 except Exception as e:
