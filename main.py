@@ -68,6 +68,13 @@ def social_priority(url):
     else:
         return 2
 
+def validate_bonus(bonus : str) -> float:
+    try:
+        bonus = bonus.replace("%","")
+        return float(bonus)
+    except ValueError:
+        return 0.0
+
 def buscar_participantes():
     response = requests.get(GITHUB_URL)
     participantes = []
@@ -93,6 +100,9 @@ def buscar_participantes():
                         if "social" in data_info and isinstance(data_info["social"], list):
                             data_info["social"].sort(key=social_priority)
 
+                        if "p99" in data_info["data"]:
+                            data_info["data"]["p99"]["bonus"] = validate_bonus(data_info["data"]["p99"]["bonus"])
+                        #print(data_info)
                         participantes.append(data_info)
                 except Exception as e:
                     print(f"Erro pegar dados : {e}")
