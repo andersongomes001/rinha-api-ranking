@@ -96,7 +96,9 @@ def buscar_participantes():
                         data_info = json.loads(re.sub(r',(\s*[}\]])', r'\1', response_info.content.decode()))
                         data_info["data"] = data_results
                         data_info["langs"] = list(set([(mapa_linguagens.get(lang) or lang) for lang in data_info["langs"]]))
-
+                        if isinstance(data_info["name"], list):
+                            data_info["name"] = " / ".join(data_info["name"])
+                        print(data_info["name"])
                         if "social" in data_info and isinstance(data_info["social"], list):
                             data_info["social"].sort(key=social_priority)
 
