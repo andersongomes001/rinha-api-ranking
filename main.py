@@ -57,8 +57,15 @@ mapa_linguagens = {
     "flask": "Flask",
     "express": "Express.js",
     "nginx": "Nginx",
-    "redis": "Redis"
+    "redis": "Redis",
+    "NestJS":"NestJS"
 }
+
+mapa_linguagens = {
+    k.upper(): v for k, v in mapa_linguagens.items()
+}
+
+print(mapa_linguagens)
 
 def social_priority(url):
     if "linkedin" in url:
@@ -95,10 +102,9 @@ def buscar_participantes():
                         data_results = json.loads(re.sub(r',(\s*[}\]])', r'\1', response_results.content.decode()))
                         data_info = json.loads(re.sub(r',(\s*[}\]])', r'\1', response_info.content.decode()))
                         data_info["data"] = data_results
-                        data_info["langs"] = list(set([(mapa_linguagens.get(lang) or lang) for lang in data_info["langs"]]))
+                        data_info["langs"] = list(set([(mapa_linguagens.get(str(lang).upper()) or lang) for lang in data_info["langs"]]))
                         if isinstance(data_info["name"], list):
                             data_info["name"] = " / ".join(data_info["name"])
-                        print(data_info["name"])
                         if "social" in data_info and isinstance(data_info["social"], list):
                             data_info["social"].sort(key=social_priority)
 
