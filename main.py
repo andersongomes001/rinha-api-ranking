@@ -90,19 +90,24 @@ def buscar_participantes():
         datatarget = soup.select('script[data-target="react-app.embeddedData"]')
         if datatarget:
             items = json.loads(datatarget[0].text)["payload"]["tree"]["items"]
-            for item in items:
+            #print(len(items))    
+            for index,item in enumerate(items):
                 try:
                     name = item["name"]
                     url_results = f"{RAW_BASE_URL}/{name}/partial-results.json"
                     url_info = f"{RAW_BASE_URL}/{name}/info.json"
                     response_results = requests.get(url_results)
                     response_info = requests.get(url_info)
+                    #print("INDEX => ",index, response_results.status_code, response_info.status_code)
                     if (response_results.status_code == 200 and len(response_results.content) > 0) and (
                             response_info.status_code == 200 and len(response_info.content) > 0):
                         data_results = json.loads(re.sub(r',(\s*[}\]])', r'\1', response_results.content.decode()))
                         data_info = json.loads(re.sub(r',(\s*[}\]])', r'\1', response_info.content.decode()))
                         data_info["data"] = data_results
+                        if "langs" not in data_info:
+                            data_info["langs"] = []
                         data_info["langs"] = list(set([(mapa_linguagens.get(str(lang).upper()) or lang) for lang in data_info["langs"]]))
+
                         if isinstance(data_info["name"], list):
                             data_info["name"] = " / ".join(data_info["name"])
                         if "social" in data_info and isinstance(data_info["social"], list):
@@ -113,6 +118,7 @@ def buscar_participantes():
                         #print(data_info)
                         participantes.append(data_info)
                 except Exception as e:
+                    #print(item)
                     print(f"Erro pegar dados : {e}")
     return participantes
 
@@ -122,7 +128,12 @@ def atualizar_cache():
     try:
         print("Atualizando cache do ranking...")
         participantes = buscar_participantes()
-        ranking = sorted(participantes, key=lambda p: p["data"]['total_liquido'], reverse=True)
+        
+        ranking = sorted(participantes, key=lambda p: (
+            p["data"]['total_liquido'], 
+            -float(str(p["data"]["p99"]["valor"].replace("ms", "")).strip())
+        ),reverse=True)
+
         with cache_lock:
             ranking_cache = ranking
         print(f"Cache atualizado com {len(ranking_cache)} participantes.")
