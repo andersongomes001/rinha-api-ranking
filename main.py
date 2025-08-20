@@ -14,6 +14,7 @@ GITHUB_URL = "https://github.com/zanfranceschi/rinha-de-backend-2025/tree/main/p
 RAW_BASE_URL = "https://raw.githubusercontent.com/zanfranceschi/rinha-de-backend-2025/main/participantes"
 
 ranking_cache = []
+ranking_cache_final = []
 cache_lock = threading.Lock()
 
 mapa_linguagens = {
@@ -82,7 +83,7 @@ def validate_bonus(bonus : str) -> float:
     except ValueError:
         return 0.0
 
-def buscar_participantes():
+def buscar_participantes(final: bool = False):
     response = requests.get(GITHUB_URL)
     participantes = []
     if response.status_code == 200:
@@ -95,6 +96,8 @@ def buscar_participantes():
                 try:
                     name = item["name"]
                     url_results = f"{RAW_BASE_URL}/{name}/partial-results.json"
+                    if final:
+                        url_results = f"{RAW_BASE_URL}/{name}/final-results.json"
                     url_info = f"{RAW_BASE_URL}/{name}/info.json"
                     response_results = requests.get(url_results)
                     response_info = requests.get(url_info)
@@ -123,11 +126,11 @@ def buscar_participantes():
     return participantes
 
 
-def atualizar_cache():
+def atualizar_cache(ranking_final: bool = False ):
     global ranking_cache
     try:
         print("Atualizando cache do ranking...")
-        participantes = buscar_participantes()
+        participantes = buscar_participantes(final=ranking_final)
         
         ranking = sorted(participantes, key=lambda p: (
             p["data"]['total_liquido'], 
@@ -142,11 +145,9 @@ def atualizar_cache():
     finally:
         print(" Agenda a próxima atualização em 300s (5 minutos)")
 
-
 @app.route("/")
 def home():
     return "API da Rinha está rodando! Use /ranking para ver os dados."
-
 
 @app.route('/ranking')
 def ranking():
@@ -154,14 +155,11 @@ def ranking():
         return jsonify({"mensagem": "Ranking ainda não carregado"}), 503
     return jsonify(ranking_cache)
 
-
 def agendador():
     while True:
-        atualizar_cache()
+        atualizar_cache(True)
         time.sleep(300)  # 5 minutos
 
-
 threading.Thread(target=agendador, daemon=True).start()
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
