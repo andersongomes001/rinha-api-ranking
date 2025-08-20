@@ -157,7 +157,7 @@ def ranking():
 
 def agendador():
     while True:
-        atualizar_cache(True)
+        atualizar_cache(False)
         time.sleep(300)  # 5 minutos
 
 threading.Thread(target=agendador, daemon=True).start()
