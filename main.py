@@ -104,8 +104,18 @@ def buscar_participantes(final: bool = False):
                     #print("INDEX => ",index, response_results.status_code, response_info.status_code)
                     if (response_results.status_code == 200 and len(response_results.content) > 0) and (
                             response_info.status_code == 200 and len(response_info.content) > 0):
-                        data_results = json.loads(re.sub(r',(\s*[}\]])', r'\1', response_results.content.decode()))
-                        data_info = json.loads(re.sub(r',(\s*[}\]])', r'\1', response_info.content.decode()))
+                        
+
+                        text_results = response_results.content.decode("utf-8-sig", errors="replace").strip()
+                        text_info    = response_info.content.decode("utf-8-sig", errors="replace").strip()
+                        if not text_results.endswith('}'):
+                            text_results += '}'
+                        if not text_info.endswith('}'):
+                            text_info += '}'
+
+                        data_results = json.loads(re.sub(r',(\s*[}\]])', r'\1', text_results))
+                        data_info = json.loads(re.sub(r',(\s*[}\]])', r'\1', text_info))
+            
                         data_info["data"] = data_results
                         if "langs" not in data_info:
                             data_info["langs"] = []
@@ -121,7 +131,7 @@ def buscar_participantes(final: bool = False):
                         #print(data_info)
                         participantes.append(data_info)
                 except Exception as e:
-                    #print(item)
+                    print(item)
                     print(f"Erro pegar dados : {e}")
     return participantes
 
