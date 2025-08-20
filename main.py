@@ -6,6 +6,7 @@ import threading
 import time
 from flask_cors import CORS
 import re
+from urllib.parse import quote
 
 app = Flask(__name__)
 CORS(app)
@@ -95,10 +96,11 @@ def buscar_participantes(final: bool = False):
             for index,item in enumerate(items):
                 try:
                     name = item["name"]
-                    url_results = f"{RAW_BASE_URL}/{name}/partial-results.json"
+                    encoded_user_dir = quote(name)
+                    url_results = f"{RAW_BASE_URL}/{encoded_user_dir}/partial-results.json"
                     if final:
-                        url_results = f"{RAW_BASE_URL}/{name}/final-results.json"
-                    url_info = f"{RAW_BASE_URL}/{name}/info.json"
+                        url_results = f"{RAW_BASE_URL}/{encoded_user_dir}/final-results.json"
+                    url_info = f"{RAW_BASE_URL}/{encoded_user_dir}/info.json"
                     response_results = requests.get(url_results)
                     response_info = requests.get(url_info)
                     #print("INDEX => ",index, response_results.status_code, response_info.status_code)
