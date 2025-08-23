@@ -96,6 +96,8 @@ def buscar_participantes(final: bool = False):
             for index,item in enumerate(items):
                 try:
                     name = item["name"]
+                    if "ventopreto" in name.lower():
+                        continue
                     encoded_user_dir = quote(name)
                     url_results = f"{RAW_BASE_URL}/{encoded_user_dir}/partial-results.json"
                     if final:
