@@ -93,9 +93,6 @@ def buscar_participantes(final: bool = False):
         if datatarget:
             items = json.loads(datatarget[0].text)["payload"]["tree"]["items"]
             #print(len(items))
-            items = [{
-                "name": "victorverdoodt-cs-redis"
-            }]
             for index,item in enumerate(items):
                 try:
                     name = item["name"]
