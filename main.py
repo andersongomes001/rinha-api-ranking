@@ -92,7 +92,10 @@ def buscar_participantes(final: bool = False):
         datatarget = soup.select('script[data-target="react-app.embeddedData"]')
         if datatarget:
             items = json.loads(datatarget[0].text)["payload"]["tree"]["items"]
-            #print(len(items))    
+            #print(len(items))
+            items = [{
+                "name": "victorverdoodt-cs-redis"
+            }]
             for index,item in enumerate(items):
                 try:
                     name = item["name"]
@@ -119,6 +122,17 @@ def buscar_participantes(final: bool = False):
 
                         data_results = json.loads(re.sub(r',(\s*[}\]])', r'\1', text_results))
                         data_info = json.loads(re.sub(r',(\s*[}\]])', r'\1', text_info))
+                        if "erro" in data_info:
+                            data_info = {
+                                "name": name,
+                                "social": [],
+                                "source-code-repo": "#",
+                                "langs": ["N/A"],
+                                "storages": ["N/A"],
+                                "messaging": ["N/A"],
+                                "load-balancers": ["N/A"],
+                                "other-technologies": ["N/A"]
+                            }
             
                         data_info["data"] = data_results
                         if "langs" not in data_info:
